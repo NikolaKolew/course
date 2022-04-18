@@ -12,12 +12,13 @@ defmodule Course do
   end
 
   # @spec add(any) :: :ok
-  def add(first_name, last_name, email, password) do
+  def add(username, email, password, sex) do
     user = %User{
-      first_name: first_name,
-      last_name: last_name,
+      username: username,
       email: email,
-      password: password
+      password: password,
+      is_logged_in: false,
+      sex: sex
     }
 
     GenServer.cast(__MODULE__, {:add, user})
@@ -28,19 +29,11 @@ defmodule Course do
     {:ok, init_args}
   end
 
-  def handle_call(:break, _from, state) do
-    {:reply, 1 / 0, state}
-  end
-
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
   def handle_cast({:add, elem}, state) do
     {:noreply, [elem | state]}
-  end
-
-  def handle_cast({:remove, elem}, state) do
-    {:noreply, Enum.filter(state, fn e -> e != elem end)}
   end
 end
