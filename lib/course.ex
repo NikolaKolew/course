@@ -11,6 +11,14 @@ defmodule Course do
     GenServer.call(__MODULE__, :get_state)
   end
 
+  def get_user(username) do
+    GenServer.call(__MODULE__, {:get_user, username})
+  end
+
+  def login(username, password) do
+    GenServer.call(__MODULE__, {:login, username, password})
+  end
+
   # @spec add(any) :: :ok
   def add(username, email, password, sex) do
     user = %User{
@@ -31,6 +39,16 @@ defmodule Course do
 
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
+  end
+
+  def handle_call({:get_user, username}, _from, state) do
+    {:reply, Enum.filter(state, fn x -> x.username == username end), state}
+  end
+
+  def handle_call({:login, username, password}, _from, state) do
+    user = Enum.filter(state, fn x -> x.username == username && x.password == password end)
+
+    {:reply, user, state}
   end
 
   def handle_cast({:add, elem}, state) do
