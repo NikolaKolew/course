@@ -32,6 +32,10 @@ defmodule Course do
     GenServer.cast(__MODULE__, {:add, user})
   end
 
+  def delete(username) do
+    GenServer.cast(__MODULE__, {:delete, username})
+  end
+
   # @spec init(any) :: {:ok, any}
   def init(init_args) do
     {:ok, init_args}
@@ -74,5 +78,10 @@ defmodule Course do
 
   def handle_cast({:add, elem}, state) do
     {:noreply, [elem | state]}
+  end
+
+  def handle_cast({:delete, username}, state) do
+    new_state = Enum.reject(state, fn x -> x.username == username end)
+    {:noreply, new_state}
   end
 end
