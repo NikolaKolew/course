@@ -46,9 +46,30 @@ defmodule Course do
   end
 
   def handle_call({:login, username, password}, _from, state) do
-    user = Enum.filter(state, fn x -> x.username == username && x.password == password end)
+    isAnyoneLogged = Enum.any?(state, fn x -> x.is_logged_in == true end)
 
-    {:reply, user, state}
+    indexOfUser =
+      if isAnyoneLogged == false do
+        Enum.find_index(state, fn x -> x.username == username && x.password == password end)
+      else
+        nil
+      end
+
+    state =
+      if indexOfUser != nil do
+        List.update_at(state, indexOfUser, fn x -> Map.put(x, :is_logged_in, true) end)
+      else
+        state
+      end
+
+    result =
+      if indexOfUser != nil do
+        "Success"
+      else
+        "Failed"
+      end
+
+    {:reply, result, state}
   end
 
   def handle_cast({:add, elem}, state) do
