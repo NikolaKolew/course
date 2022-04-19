@@ -24,7 +24,7 @@ defmodule Course do
   end
 
   # @spec add(any) :: :ok
-  def add(username, email, password, sex) do
+  def create(username, email, password, sex) do
     user = %User{
       username: username,
       email: email,
@@ -33,7 +33,7 @@ defmodule Course do
       sex: sex
     }
 
-    GenServer.cast(__MODULE__, {:add, user})
+    GenServer.call(__MODULE__, {:create, user})
   end
 
   def delete(username) do
@@ -100,7 +100,7 @@ defmodule Course do
 
     result =
       if indexOfUser != nil do
-        "Success"
+        "Sucess"
       else
         "Failed"
       end
@@ -108,7 +108,7 @@ defmodule Course do
     {:reply, result, state}
   end
 
-  def handle_cast({:add, elem}, state) do
+  def handle_call({:create, elem}, _from, state) do
     # add error if there is a user with the same username or email(now the mothod dont change the state when this happens)
     new_state =
       if Enum.any?(state, fn x -> x.username == elem.username || x.email == elem.email end) do
@@ -117,7 +117,14 @@ defmodule Course do
         [elem | state]
       end
 
-    {:noreply, new_state}
+    error =
+      if Enum.any?(state, fn x -> x.username == elem.username || x.email == elem.email end) do
+        "A user with this email or username already exist!"
+      else
+        "You successfully created a new user!"
+      end
+
+    {:reply, error, new_state}
   end
 
   def handle_cast({:delete, username}, state) do
