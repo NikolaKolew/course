@@ -7,8 +7,8 @@ defmodule Course do
 
   # client side
   # @spec state :: any()
-  def state do
-    GenServer.call(__MODULE__, :get_state)
+  def show do
+    GenServer.call(__MODULE__, :show)
   end
 
   def logout do
@@ -49,7 +49,7 @@ defmodule Course do
     {:ok, init_args}
   end
 
-  def handle_call(:get_state, _from, state) do
+  def handle_call(:show, _from, state) do
     {:reply, state, state}
   end
 
