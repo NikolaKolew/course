@@ -40,6 +40,10 @@ defmodule Course do
     GenServer.cast(__MODULE__, {:delete, username})
   end
 
+  def change_password(username, old_password, new_password) do
+    GenServer.cast(__MODULE__, {:change_password, username, old_password, new_password})
+  end
+
   # @spec init(any) :: {:ok, any}
   def init(init_args) do
     {:ok, init_args}
@@ -129,6 +133,26 @@ defmodule Course do
 
   def handle_cast({:delete, username}, state) do
     new_state = Enum.reject(state, fn x -> x.username == username end)
+    {:noreply, new_state}
+  end
+
+  def handle_cast({:change_password, username, password, new_password}, state) do
+    isAnyoneLogged = Enum.any?(state, fn x -> x.is_logged_in == true end)
+
+    indexOfUser =
+      if isAnyoneLogged do
+        Enum.find_index(state, fn x -> x.username == username && x.password == password end)
+      else
+        nil
+      end
+
+    new_state =
+      if indexOfUser != nil do
+        List.update_at(state, indexOfUser, fn x -> Map.put(x, :password, new_password) end)
+      else
+        state
+      end
+
     {:noreply, new_state}
   end
 end
